@@ -1,0 +1,2 @@
+# PolinomCalculator
+Calculator for polinoms
