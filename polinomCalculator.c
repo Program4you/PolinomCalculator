@@ -10,9 +10,7 @@ typedef struct polinom_t {
 	size_t n;
 } polinom_t;
 
-typedef struct lexeme_t {
-	char *value;
-} lexeme_t;
+typedef char* lexeme_t;
 
 typedef struct tree_t {
 	char *lex;
@@ -57,22 +55,22 @@ lexeme_t* parse(size_t *size) {
 		if (is_ariphmetic(c) || is_bracket(c)) {
 			switch (c) {
 			case '+':
-				lexeme.value = "+";
+				lexeme = "+";
 				break;
 			case '-':
-				lexeme.value = "-";
+				lexeme = "-";
 				break;
 			case '*':
-				lexeme.value = "*";
+				lexeme = "*";
 				break;
 			case '/':
-				lexeme.value = "/";
+				lexeme = "/";
 				break;
 			case '(':
-				lexeme.value = "(";
+				lexeme = "(";
 				break;
 			case ')':
-				lexeme.value = ")";
+				lexeme = ")";
 				break;
 			}
 			
@@ -98,7 +96,7 @@ lexeme_t* parse(size_t *size) {
 
 			s[s_size] = '\0';
 
-			lexemes[*size - 1].value = s;
+			lexemes[*size - 1] = s;
 		} 
 
 		c = getchar();
@@ -114,12 +112,12 @@ tree_t* make_tree(lexeme_t *expr, int first, int last) {
 	int brackets = 0;
 
 	for (int i = first; i <= last; i++) {
-		if (expr[i].value[0] == '(')
+		if (expr[i][0] == '(')
 			brackets++;
-		else if (expr[i].value[0] == ')')
+		else if (expr[i][0] == ')')
 			brackets--;
 		else if (brackets <= 0) {
-			int curPriority = priority(expr[i].value[0]);
+			int curPriority = priority(expr[i][0]);
 
 			if (curPriority <= minPriority) {
 				minPriority = curPriority;
@@ -128,20 +126,20 @@ tree_t* make_tree(lexeme_t *expr, int first, int last) {
 		}
 	}
 
-	if (minPriority == 2 && expr[first].value[0] == '(' && expr[last].value[0] == ')') {
+	if (minPriority == 2 && expr[first][0] == '(' && expr[last][0] == ')') {
 		free(tree);
 
 		return make_tree(expr, first + 1, last - 1);
 	}
 	else if (minPriority == 2) {
-		tree->lex = expr[first].value;
+		tree->lex = expr[first];
 		tree->left = NULL;
 		tree->right = NULL;
 
 		return tree;
 	}
 
-	tree->lex = expr[k].value;
+	tree->lex = expr[k];
 	tree->left = make_tree(expr, first, k - 1);
 	tree->right = make_tree(expr, k + 1, last);
 
@@ -346,7 +344,7 @@ polinom_t divide(polinom_t p1, polinom_t p2) {
 		polinom_t tmp;
 		tmp.n = p1.n;
 		tmp.coef = (double *) calloc(tmp.n + 1, sizeof(double));
-		
+
 		for (size_t j = 0; j <= p2.n; j++)
 			tmp.coef[p1.n - p2.n + j] = a * p2.coef[j];
 	
@@ -410,8 +408,8 @@ int main() {
 	free(res.coef);
 
 	for (size_t i = 0; i < size; i++)
-		if (!is_bracket(lexemes[i].value[0]) && !is_ariphmetic(lexemes[i].value[0]))
-			free(lexemes[i].value);
+		if (!is_bracket(lexemes[i][0]) && !is_ariphmetic(lexemes[i][0]))
+			free(lexemes[i]);
 
 	free(lexemes);
 
